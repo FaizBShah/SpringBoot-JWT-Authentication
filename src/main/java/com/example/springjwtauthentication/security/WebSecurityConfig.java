@@ -13,6 +13,7 @@ public class WebSecurityConfig {
     private static final String[] WHITE_LIST_URLS = {
             "/",
             "/api/v1/auth/register",
+            "/api/v1/auth/verifyRegistration**",
             "api/v1/auth/login"
     };
 
