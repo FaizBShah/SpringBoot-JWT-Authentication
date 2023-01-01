@@ -5,6 +5,7 @@ import com.example.springjwtauthentication.entity.UserRole;
 import com.example.springjwtauthentication.entity.VerificationToken;
 import com.example.springjwtauthentication.repository.UserRepository;
 import com.example.springjwtauthentication.repository.VerificationTokenRepository;
+import com.example.springjwtauthentication.security.jwt.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,9 @@ public class AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JWTUtils jwtUtils;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -71,8 +75,6 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(email, password)
         );
 
-        String jwt = "random-string";
-
-        return jwt;
+        return jwtUtils.generateJwtToken(authentication);
     }
 }
