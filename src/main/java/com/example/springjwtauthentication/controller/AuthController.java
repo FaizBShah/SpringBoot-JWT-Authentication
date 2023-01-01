@@ -2,6 +2,7 @@ package com.example.springjwtauthentication.controller;
 
 import com.example.springjwtauthentication.entity.User;
 import com.example.springjwtauthentication.event.RegistrationCompleteEvent;
+import com.example.springjwtauthentication.model.request.LoginUserRequestBody;
 import com.example.springjwtauthentication.model.request.RegisterUserRequestBody;
 import com.example.springjwtauthentication.service.AuthService;
 import com.example.springjwtauthentication.service.HttpRequestService;
@@ -44,5 +45,10 @@ public class AuthController {
     @GetMapping("/verifyRegistration")
     public String verifyRegistration(@RequestParam("token") String token) {
         return authService.verifyRegistration(token);
+    }
+
+    @PostMapping("/login")
+    public String loginUser(@RequestBody LoginUserRequestBody requestBody) {
+        return authService.loginUser(requestBody.getEmail(), requestBody.getPassword());
     }
 }

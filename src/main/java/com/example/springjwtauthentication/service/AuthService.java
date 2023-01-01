@@ -6,6 +6,9 @@ import com.example.springjwtauthentication.entity.VerificationToken;
 import com.example.springjwtauthentication.repository.UserRepository;
 import com.example.springjwtauthentication.repository.VerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,9 @@ public class AuthService {
 
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -58,5 +64,15 @@ public class AuthService {
         verificationTokenRepository.delete(verificationToken);
 
         return "User Verified Successfully";
+    }
+
+    public String loginUser(String email, String password) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+        );
+
+        String jwt = "random-string";
+
+        return jwt;
     }
 }

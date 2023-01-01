@@ -1,5 +1,6 @@
 package com.example.springjwtauthentication.service;
 
+import com.example.springjwtauthentication.entity.User;
 import com.example.springjwtauthentication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,8 +19,14 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository
+        User user = userRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User does not exist with email: " + email));
+
+        if (!user.isEnabled()) {
+            throw new IllegalStateException("User is not verified");
+        }
+
+        return user;
     }
 }

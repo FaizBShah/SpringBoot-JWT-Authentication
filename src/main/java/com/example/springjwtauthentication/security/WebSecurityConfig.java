@@ -1,6 +1,9 @@
 package com.example.springjwtauthentication.security;
 
+import com.example.springjwtauthentication.security.provider.JWTAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,7 +17,7 @@ public class WebSecurityConfig {
             "/",
             "/api/v1/auth/register",
             "/api/v1/auth/verifyRegistration**",
-            "api/v1/auth/login"
+            "/api/v1/auth/login"
     };
 
     @Bean
@@ -23,12 +26,19 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .cors().and().csrf().disable()
                 .authorizeHttpRequests()
                 .antMatchers(WHITE_LIST_URLS).permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .authenticationProvider(new JWTAuthenticationProvider());
 
         return httpSecurity.build();
     }
