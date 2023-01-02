@@ -3,10 +3,12 @@ package com.example.springjwtauthentication.service;
 import com.example.springjwtauthentication.entity.User;
 import com.example.springjwtauthentication.entity.UserRole;
 import com.example.springjwtauthentication.entity.VerificationToken;
+import com.example.springjwtauthentication.exception.AppException;
 import com.example.springjwtauthentication.repository.UserRepository;
 import com.example.springjwtauthentication.repository.VerificationTokenRepository;
 import com.example.springjwtauthentication.security.jwt.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +36,10 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public User registerUser(String firstName, String lastName, String email, String password) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "User Already Exists");
+        }
+
         User user = User.builder()
                 .firstName(firstName)
                 .lastName(lastName)
@@ -47,17 +53,17 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public String verifyRegistration(String token) {
+    public void verifyRegistration(String token) {
         VerificationToken verificationToken = verificationTokenRepository
                 .findByToken(token)
-                .orElseThrow(() -> new IllegalStateException("Invalid Verification Token"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Invalid Verification Token"));
 
         if (verificationToken.getExpirationTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Verification Token Expired");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Verification Token Expired");
         }
 
         if (verificationToken.getUser().isEnabled()) {
-            throw new IllegalStateException("User is already enabled");
+            throw new AppException(HttpStatus.BAD_REQUEST, "User is already enabled");
         }
 
         User user = verificationToken.getUser();
@@ -66,8 +72,6 @@ public class AuthService {
         userRepository.save(user);
 
         verificationTokenRepository.delete(verificationToken);
-
-        return "User Verified Successfully";
     }
 
     public String loginUser(String email, String password) {

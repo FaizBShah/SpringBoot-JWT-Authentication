@@ -1,8 +1,10 @@
 package com.example.springjwtauthentication.security.jwt;
 
 import com.example.springjwtauthentication.entity.User;
+import com.example.springjwtauthentication.exception.AppException;
 import com.example.springjwtauthentication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -34,7 +36,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String email = jwtUtils.validateJwtToken(jwtToken);
 
         if (email == null) {
-            throw new IllegalStateException("Invalid Request");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid Request");
         }
 
         User user = (User) userService.loadUserByUsername(email);
